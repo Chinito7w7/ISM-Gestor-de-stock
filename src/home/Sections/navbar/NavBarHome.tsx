@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { Package, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Link } from "react-router"
 
 export function NavbarHome() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -46,9 +47,11 @@ export function NavbarHome() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="outline" size="default" className="shadow-lg cursor-pointer bg-green-400 w-full mx-5 text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all">
-            Iniciar sesión
-          </Button>
+          <Link to="/auth/login">
+            <Button variant="outline" size="default" className="shadow-lg cursor-pointer bg-green-400 w-full mx-5 text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all">
+              Iniciar sesión
+            </Button>
+          </Link>
         </div>
 
         <button

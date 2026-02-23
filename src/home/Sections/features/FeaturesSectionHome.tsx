@@ -14,9 +14,6 @@ export function FeaturesSectionHome() {
           <p className="mb-10 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl text-balance">
             Caracteristicas
           </p>
-          <h2 className="mt-3 text-3xl font-normal tracking-tight text-foreground sm:text-4xl text-balance">
-            Todo lo que necesitas para manejar tu inventario
-          </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground text-pretty">
             Una plataforma completa diseñada para eliminar la falta de stock, reducir el desperdicio y dotar de superpoderes a tu equipo de operaciones.
           </p>

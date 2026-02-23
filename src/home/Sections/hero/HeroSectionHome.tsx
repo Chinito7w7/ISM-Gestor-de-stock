@@ -56,7 +56,7 @@ export function HeroSectionHome() {
               <div className="absolute inset-0 -rotate-3 scale-95 rounded-3xl border border-border/50 bg-card/50 backdrop-blur-sm" aria-hidden="true" />
               <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 p-3 shadow-2xl shadow-secondary/10 backdrop-blur-md">
                 <img
-                  src="../src/assets/hero-illustration.jpg"
+                  src="..\src\assets\hero-illustration.jpg"
                   alt="3D isometric illustration of an organized warehouse with digital analytics dashboards"
                   width={600}
                   height={480}
