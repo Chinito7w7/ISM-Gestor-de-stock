@@ -3,6 +3,7 @@ import { HomePage } from "./home/HomePage";
 import { LoginPage } from "./auth/pages/login/LoginPage";
 import { RegisterPage } from "./auth/pages/register/RegisterPage";
 import AuthLayout from "./auth/layout/AuthLayout";
+import { NotAuthenticatedRoute } from "./components/routes/ProtectedRoutes";
 
 
 export const appRouter = createBrowserRouter([
@@ -15,7 +16,9 @@ export const appRouter = createBrowserRouter([
     //Auth Routes
     {
         path:"/auth",
-        element:<AuthLayout/>,
+        element: <NotAuthenticatedRoute>
+                    <AuthLayout/>
+                </NotAuthenticatedRoute>,
         children:[
             {
                 index:true,

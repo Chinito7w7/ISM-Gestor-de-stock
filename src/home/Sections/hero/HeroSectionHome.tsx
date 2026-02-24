@@ -1,7 +1,9 @@
 import { ArrowRight, Hand, Pen, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/auth/store/auth.store"
 
 export function HeroSectionHome() {
+  const {user} = useAuthStore()
   return (
     <section id="hero" className="relative overflow-hidden pt-32 pb-20 lg:pt-44 lg:pb-32">
       {/* Background decorations */}
@@ -25,13 +27,18 @@ export function HeroSectionHome() {
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button
-                size="default"
-                className="gap-2 px-8 shadow-lg cursor-pointer bg-green-400 w-full mx-5 text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all"
-              >
+              {
+                !user ? (
+                <Button
+                  size="default"
+                  className="gap-2 px-8 shadow-lg cursor-pointer bg-green-400 w-full mx-5 text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                >
                 Iniciar sesión
                 <ArrowRight className="h-4 w-4" />
               </Button>
+                ): ''
+              }
+
             </div>
 
             <div className="mt-12 flex items-center border-t border-border pt-8 gap-8">

@@ -1,12 +1,14 @@
 
 import { useState } from "react"
-import { Package, Menu, X } from "lucide-react"
+import { Package, Menu, X, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router"
+import { useAuthStore } from "@/auth/store/auth.store"
+
 
 export function NavbarHome() {
   const [mobileOpen, setMobileOpen] = useState(false)
-
+  const { authStatus } = useAuthStore()
   return (
     <header className=" fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
@@ -47,11 +49,29 @@ export function NavbarHome() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link to="/auth/login">
-            <Button variant="outline" size="default" className="shadow-lg cursor-pointer bg-green-400 w-full mx-5 text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all">
-              Iniciar sesión
-            </Button>
-          </Link>
+          {
+            authStatus === 'not-authenticated' ? (
+              <Link to="/auth/login">
+                <Button variant="outline" size="default" className="shadow-lg cursor-pointer bg-green-400 w-full mx-5 text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                  Iniciar sesión
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            ): ""
+          }
+          {
+          
+            
+            authStatus === 'authenticated' ?(
+              <Link to="/dashboard" >
+                <Button variant="outline" size="default" className="shadow-lg cursor-pointer bg-green-400 w-full mx-5 text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                  Ver inventario <Package/>
+                </Button>
+              </Link>
+            ) : ""
+          }
+          
+
         </div>
 
         <button
@@ -99,9 +119,27 @@ export function NavbarHome() {
               ¿Como funciona?
             </a>
             <div className="flex flex-col gap-2 pt-2">
-              <Button variant="ghost" size="default" className="cursor-pointer bg-green-400 w-full text-black hover:bg-green-600">
-                Iniciar sesión
-              </Button>
+              {
+                authStatus === 'not-authenticated' ? (
+                  <Link to="/auth/login">
+                    <Button variant="outline" size="default" className="shadow-lg cursor-pointer bg-green-400 w-full text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                      Iniciar sesión
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                ): ""
+              }
+              {
+              
+                
+                authStatus === 'authenticated' ?(
+                  <Link to="/dashboard" >
+                    <Button variant="outline" size="default" className="shadow-lg cursor-pointer bg-green-400 w-full text-black hover:bg-green-600 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                      Ver inventario <Package/>
+                    </Button>
+                  </Link>
+                ) : ""
+              }
             </div>
           </div>
         </div>
