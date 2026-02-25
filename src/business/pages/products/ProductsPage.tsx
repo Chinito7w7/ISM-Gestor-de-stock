@@ -15,17 +15,23 @@ import { Plus, Search,   Pencil, Trash2 } from "lucide-react"
 import {Badge} from "@/components/ui/badge"
 import { CustomFullScreenLoading } from "@/components/custom/CustomFullScreenLoading";
 import { useProducts } from "@/business/hooks/useProducts";
+import { cn } from "@/lib/utils";
+import { currencyFormater } from "@/lib/currencyFormater";
+import { IsmApi } from "@/api/IsmApi";
+import { useDeleteProduct } from "@/business/hooks/useDeleteProduct";
 
 
 export const ProductsPage = () => {
     
+    const { mutate: deleteProduct } = useDeleteProduct();
     const { data,isError,isLoading } = useProducts()
 
     if(isLoading) return <CustomFullScreenLoading/>
     if(isError) return <p className="text-xl text-red-500 font-bold">Error cargando productos</p>
 
-    const products = data?.products ?? [];
+    const products = data ?? [];
     const categories = [...new Set(products.map(product => product.category))];
+
 
     console.log(products)
   return (
@@ -44,7 +50,7 @@ export const ProductsPage = () => {
           </Button>
         </div>
 
-        <Card className="dashboard-section border-0">
+        <Card className="dashboard-section shadow-xl border-0">
           <CardHeader>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
@@ -66,7 +72,7 @@ export const ProductsPage = () => {
               </Select>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 max-h-125 overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -80,12 +86,12 @@ export const ProductsPage = () => {
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product.name}>
-                    <TableCell className="text-sm font-medium">{product.name}</TableCell>
+                    <TableCell className="text-sm font-medium">- {product.name}</TableCell>
                     <TableCell><Badge  className="text-xs">{product.category}</Badge></TableCell>
-                    <TableCell className="text-sm text-right">${product.price.toFixed(2)}</TableCell>
+                    <TableCell className="text-sm text-right">{currencyFormater(product.price)}</TableCell>
                     <TableCell className="text-right">
-                      <Badge className="text-xs">
-                        {product.stock}
+                      <Badge className={cn(product.stock <= 5 ? "bg-red-400" : "bg-white")}>
+                        <p className="text-black">{product.stock}</p>
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -93,7 +99,7 @@ export const ProductsPage = () => {
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteProduct(product._id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
