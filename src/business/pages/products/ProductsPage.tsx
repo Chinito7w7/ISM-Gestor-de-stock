@@ -17,23 +17,81 @@ import { CustomFullScreenLoading } from "@/components/custom/CustomFullScreenLoa
 import { useProducts } from "@/business/hooks/useProducts";
 import { cn } from "@/lib/utils";
 import { currencyFormater } from "@/lib/currencyFormater";
-import { IsmApi } from "@/api/IsmApi";
-import { useDeleteProduct } from "@/business/hooks/useDeleteProduct";
 
+import { useDeleteProduct } from "@/business/hooks/useDeleteProduct";
+import { useState } from "react";
+
+import {useForm} from "react-hook-form"
+import type { Product } from "@/business/interfaces/product.interface";
+import { useCreateProduct } from "@/business/hooks/useCreateProduct";
+import { useUpdateProduct } from "@/business/hooks/useUpdateProduct";
 
 export const ProductsPage = () => {
     
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    
+    
     const { mutate: deleteProduct } = useDeleteProduct();
+    const { mutate: createProduct} = useCreateProduct();
+    const {mutate: updateProduct} = useUpdateProduct()
+    
+    
+    
     const { data,isError,isLoading } = useProducts()
-
+    
+    const { register, handleSubmit, reset, setValue, watch } = useForm<Product>();
+    
     if(isLoading) return <CustomFullScreenLoading/>
     if(isError) return <p className="text-xl text-red-500 font-bold">Error cargando productos</p>
 
+
+
     const products = data ?? [];
     const categories = [...new Set(products.map(product => product.category))];
+    const selectedCategory = watch("category");
+    //Manejar formulario
 
 
-    console.log(products)
+
+    const openCreate = () => {
+        setEditingProduct(null);
+
+        reset({
+            name: "",
+            price: 0,
+            stock: 0,
+            category: "",
+        });
+
+        setDialogOpen(true);
+        };
+    const openEdit = (product: Product) => {
+        setEditingProduct(product);
+
+        reset(product); // esto carga los datos en el form
+
+        setDialogOpen(true);
+        };
+
+    const onSubmit = (data: Product) => {
+        if (editingProduct) {
+            updateProduct(
+            { ...data, _id: editingProduct._id },
+            {
+                onSuccess: () => {
+                setDialogOpen(false);
+                },
+            }
+            );
+        } else {
+            createProduct(data, {
+            onSuccess: () => {
+                setDialogOpen(false);
+            },
+            });
+        }
+        };
   return (
     <>
         <div className="space-y-6">
@@ -44,7 +102,7 @@ export const ProductsPage = () => {
           </div>
 
           {/* onClick={openCreate} */}
-          <Button > 
+          <Button onClick={openCreate}> 
             <Plus className="w-4 h-4 mr-2" />
             Nuevo producto
           </Button>
@@ -58,7 +116,7 @@ export const ProductsPage = () => {
                 <Input placeholder="Buscar producto..." className="pl-9"/>
               </div>
               <Select>
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-45">
                   <SelectValue placeholder="Categoría" />
                 </SelectTrigger>
                 <SelectContent>
@@ -85,7 +143,7 @@ export const ProductsPage = () => {
               </TableHeader>
               <TableBody>
                 {products.map((product) => (
-                  <TableRow key={product.name}>
+                  <TableRow key={product._id}>
                     <TableCell className="text-sm font-medium">- {product.name}</TableCell>
                     <TableCell><Badge  className="text-xs">{product.category}</Badge></TableCell>
                     <TableCell className="text-sm text-right">{currencyFormater(product.price)}</TableCell>
@@ -96,8 +154,8 @@ export const ProductsPage = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Pencil className="w-4 h-4" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(product)}>
+                          <Pencil className="w-4 h-4"/>
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteProduct(product._id)}>
                           <Trash2 className="w-4 h-4" />
@@ -112,54 +170,76 @@ export const ProductsPage = () => {
         </Card>
       </div>
 
-      {/* <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingProduct ? "Editar producto" : "Nuevo producto"}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label>Nombre</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                <Label>Nombre</Label>
+                <Input {...register("name", { required: true })} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                    <Label>Categoría</Label>
+                      <Select
+                        onValueChange={(value) => setValue("category", value)}
+                        value={selectedCategory || ""}
+                    >
+                        <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar categoría" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                        {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                            {category}
+                            </SelectItem>
+                        ))}
+
+                        <SelectItem value="__new__">
+                            <div className="flex items-center gap-2">
+                            <Plus className="w-4 h-4" />
+                            Añadir categoría
+                            </div>
+                        </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                    <Label>Precio</Label>
+                    <Input type="number" {...register("price", { required: true })} />
+                </div>
+
+                <div className="grid gap-2">
+                    <Label>Stock</Label>
+                    <Input type="number" {...register("stock", { required: true })} />
+                </div>
+                </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label>SKU</Label>
-                <Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
-              </div>
-              <div className="grid gap-2">
-                <Label>Categoría</Label>
-                <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {categories.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="grid gap-2">
-                <Label>Precio</Label>
-                <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-              </div>
-              <div className="grid gap-2">
-                <Label>Stock</Label>
-                <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
-              </div>
-              <div className="grid gap-2">
-                <Label>Stock mínimo</Label>
-                <Input type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave}>{editingProduct ? "Guardar" : "Crear"}</Button>
-          </DialogFooter>
+
+            <DialogFooter>
+                <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setDialogOpen(false)}
+                >
+                Cancelar
+                </Button>
+
+                <Button type="submit">
+                {editingProduct ? "Guardar cambios" : "Crear producto"}
+                </Button>
+            </DialogFooter>
+            </form>
         </DialogContent>
-      </Dialog> */}
+      </Dialog>
     </>
   )
     
