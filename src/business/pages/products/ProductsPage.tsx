@@ -26,6 +26,15 @@ import type { Product } from "@/business/interfaces/product.interface";
 import { useCreateProduct } from "@/business/hooks/useCreateProduct";
 import { useUpdateProduct } from "@/business/hooks/useUpdateProduct";
 
+type ProductForm = {
+  name: string;
+  price: number;
+  stock: number;
+  category: string;
+  description:string;
+  newCategory?: string;
+};
+
 export const ProductsPage = () => {
     
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -40,7 +49,7 @@ export const ProductsPage = () => {
     
     const { data,isError,isLoading } = useProducts()
     
-    const { register, handleSubmit, reset, setValue, watch } = useForm<Product>();
+    const { register, handleSubmit, reset, setValue, watch } = useForm<ProductForm>();
     
     if(isLoading) return <CustomFullScreenLoading/>
     if(isError) return <p className="text-xl text-red-500 font-bold">Error cargando productos</p>
@@ -48,7 +57,7 @@ export const ProductsPage = () => {
 
 
     const products = data ?? [];
-    const categories = [...new Set(products.map(product => product.category))];
+    const categories = [...new Set(products.map(product => product.category).sort())];
     const selectedCategory = watch("category");
     //Manejar formulario
 
@@ -74,39 +83,49 @@ export const ProductsPage = () => {
         setDialogOpen(true);
         };
 
-    const onSubmit = (data: Product) => {
+        const onSubmit = (data: ProductForm) => {
+            let finalCategory: string;
+
+            if (data.category === "__new__") {
+            if (!data.newCategory?.trim()) {
+                return; // o mostrar error
+            }
+            finalCategory = data.newCategory;
+            } else {
+            finalCategory = data.category;
+            }
+
+        const productPayload = {
+            ...data,
+            category: finalCategory,
+        };
+
         if (editingProduct) {
             updateProduct(
-            { ...data, _id: editingProduct._id },
-            {
-                onSuccess: () => {
-                setDialogOpen(false);
-                },
-            }
+            { ...productPayload, _id: editingProduct._id },
+            { onSuccess: () => setDialogOpen(false) }
             );
         } else {
-            createProduct(data, {
-            onSuccess: () => {
-                setDialogOpen(false);
-            },
+            createProduct(productPayload, {
+            onSuccess: () => setDialogOpen(false),
             });
         }
         };
   return (
     <>
         <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Productos</h1>
-            <p className="text-muted-foreground text-sm mt-1">Gestiona tu catálogo de productos</p>
-          </div>
+            <div className="flex items-center justify-between">
+            <div>
+                <h1 className="text-2xl font-bold text-foreground">Productos</h1>
+                <p className="text-muted-foreground text-sm mt-1">Gestiona tu catálogo de productos</p>
+            </div>
 
-          {/* onClick={openCreate} */}
-          <Button onClick={openCreate}> 
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo producto
-          </Button>
-        </div>
+            {/* onClick={openCreate} */}
+            <Button onClick={openCreate}> 
+                <Plus className="w-4 h-4 mr-2" />
+                Nuevo producto
+            </Button>
+            </div>
 
         <Card className="dashboard-section shadow-xl border-0">
           <CardHeader>
@@ -185,41 +204,50 @@ export const ProductsPage = () => {
                 <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                     <Label>Categoría</Label>
-                      <Select
-                        onValueChange={(value) => setValue("category", value)}
-                        value={selectedCategory || ""}
+                    <Select
+                    value={selectedCategory || ""}
+                    onValueChange={(value) => setValue("category", value)}
                     >
-                        <SelectTrigger>
+                    <SelectTrigger>
                         <SelectValue placeholder="Seleccionar categoría" />
-                        </SelectTrigger>
+                    </SelectTrigger>
 
-                        <SelectContent>
+                    <SelectContent>
                         {categories.map((category) => (
-                            <SelectItem key={category} value={category}>
+                        <SelectItem key={category} value={category}>
                             {category}
-                            </SelectItem>
+                        </SelectItem>
                         ))}
 
                         <SelectItem value="__new__">
-                            <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                             <Plus className="w-4 h-4" />
                             Añadir categoría
-                            </div>
+                        </div>
                         </SelectItem>
-                        </SelectContent>
+                    </SelectContent>
                     </Select>
+                    {selectedCategory === "__new__" && (
+                    <div className="grid gap-2">
+                        <Label>Nueva categoría</Label>
+                        <Input
+                        placeholder="Ej: Electrónica"
+                        {...register("newCategory")}
+                        />
+                    </div>
+                    )}
                 </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                     <Label>Precio</Label>
-                    <Input type="number" {...register("price", { required: true })} />
+                    <Input type="number" min={0} {...register("price", { required: true })} />
                 </div>
 
                 <div className="grid gap-2">
                     <Label>Stock</Label>
-                    <Input type="number" {...register("stock", { required: true })} />
+                    <Input type="number" min={0} {...register("stock", { required: true })} />
                 </div>
                 </div>
             </div>

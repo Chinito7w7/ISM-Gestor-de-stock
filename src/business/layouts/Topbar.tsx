@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, LogOut, PercentSquareIcon, User } from "lucide-react";
+import { Bell, ChevronDown, LogOut, PercentSquareIcon, UserRound } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -31,7 +31,7 @@ export const Topbar = () => {
             <button className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted transition-colors">
               <Avatar className="w-8 h-8">
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                  <PercentSquareIcon/>
+                  <UserRound/>
                 </AvatarFallback>
               </Avatar>
               <span className="text-sm font-medium text-foreground hidden sm:inline">{user?.name}</span>
@@ -40,7 +40,7 @@ export const Topbar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem>
-              <User className="w-4 h-4 mr-2" />
+              <UserRound className="w-4 h-4 mr-2" />
               Mi perfil
             </DropdownMenuItem>
             <DropdownMenuSeparator />

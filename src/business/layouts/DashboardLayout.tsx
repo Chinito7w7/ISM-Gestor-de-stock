@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
-import { AppSidebar } from "../components/dashboard/AppSideBar";
-import { Topbar } from "../components/dashboard/Topbar";
+import { AppSidebar } from "./AppSideBar";
+import { Topbar } from "./Topbar";
+
 
 
 
