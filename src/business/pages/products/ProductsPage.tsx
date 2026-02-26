@@ -31,7 +31,7 @@ import { SearchInput } from "@/business/components/SearchInput";
 import type { Product } from "@/business/interfaces/product.interface";
 import { SortSelect, type SortOption } from "@/business/components/SortSelect"
 
-import { Plus, Search,   Pencil, Trash2 } from "lucide-react"
+import { Plus,Pencil, Trash2 } from "lucide-react"
 import { CategoryFilter } from "@/business/components/CategoryFilter";
 
 type ProductForm = {

@@ -1,7 +1,5 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Select,SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Search } from "lucide-react";
 import { Progress } from "@/components/ui/progress"
 import { useProducts } from "@/business/hooks/useProducts";
 import getStockPercentage from "@/lib/getStockPercentage";
