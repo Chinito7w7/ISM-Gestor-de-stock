@@ -1,3 +1,6 @@
+import { useState } from "react";
+import {useForm} from "react-hook-form"
+
 import  { Button } from "@/components/ui/button"
 import  { Card, CardHeader, CardContent } from "@/components/ui/card"
 import  { Input } from "@/components/ui/input"
@@ -11,20 +14,25 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search,   Pencil, Trash2 } from "lucide-react"
 import {Badge} from "@/components/ui/badge"
 import { CustomFullScreenLoading } from "@/components/custom/CustomFullScreenLoading";
 import { useProducts } from "@/business/hooks/useProducts";
-import { cn } from "@/lib/utils";
+
 import { currencyFormater } from "@/lib/currencyFormater";
 
-import { useDeleteProduct } from "@/business/hooks/useDeleteProduct";
-import { useState } from "react";
 
-import {useForm} from "react-hook-form"
-import type { Product } from "@/business/interfaces/product.interface";
+import { useDeleteProduct } from "@/business/hooks/useDeleteProduct";
 import { useCreateProduct } from "@/business/hooks/useCreateProduct";
 import { useUpdateProduct } from "@/business/hooks/useUpdateProduct";
+
+import { CustomTitle } from "@/business/components/CustomTitle";
+import { SearchInput } from "@/business/components/SearchInput";
+
+import type { Product } from "@/business/interfaces/product.interface";
+import { SortSelect, type SortOption } from "@/business/components/SortSelect"
+
+import { Plus, Search,   Pencil, Trash2 } from "lucide-react"
+import { CategoryFilter } from "@/business/components/CategoryFilter";
 
 type ProductForm = {
   name: string;
@@ -39,7 +47,9 @@ export const ProductsPage = () => {
     
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-    
+    const [search, setSearch] = useState("");
+    const [category, setCategory] = useState("all");
+    const [sort, setSort] = useState<SortOption>("price-desc");
     
     const { mutate: deleteProduct } = useDeleteProduct();
     const { mutate: createProduct} = useCreateProduct();
@@ -59,6 +69,33 @@ export const ProductsPage = () => {
     const products = data ?? [];
     const categories = [...new Set(products.map(product => product.category).sort())];
     const selectedCategory = watch("category");
+
+    const filteredProducts = products
+    .filter((product) => {
+        const matchesSearch = product.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+        const matchesCategory =
+        category === "all" || product.category === category;
+
+        return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+        switch (sort) {
+        case "price-desc":
+            return b.price - a.price;
+        case "price-asc":
+            return a.price - b.price;
+        case "stock-desc":
+            return b.stock - a.stock;
+        case "stock-asc":
+            return a.stock - b.stock;
+        default:
+            return 0;
+        }
+    });
+
     //Manejar formulario
 
 
@@ -111,42 +148,38 @@ export const ProductsPage = () => {
             });
         }
         };
+        
+
   return (
     <>
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-            <div>
-                <h1 className="text-2xl font-bold text-foreground">Productos</h1>
-                <p className="text-muted-foreground text-sm mt-1">Gestiona tu catálogo de productos</p>
-            </div>
-
-            {/* onClick={openCreate} */}
-            <Button onClick={openCreate}> 
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo producto
-            </Button>
+                <CustomTitle title='Productos' subtitle='Gestiona tu catálogo de productos'/>
+                <Button onClick={openCreate}> 
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nuevo producto
+                </Button>
             </div>
 
         <Card className="dashboard-section shadow-xl border-0">
           <CardHeader>
             <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Buscar producto..." className="pl-9"/>
-              </div>
-              <Select>
-                <SelectTrigger className="w-full sm:w-45">
-                  <SelectValue placeholder="Categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                    {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                        {category}
-                    </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+                    <SearchInput
+                        value={search}
+                        onChange={setSearch}
+                        placeholder="Buscar producto..."
+                    />
+
+                    <CategoryFilter
+                        categories={categories}
+                        value={category}
+                        onChange={setCategory}
+                    />
+
+                    <SortSelect
+                        value={sort}
+                        onChange={setSort}
+                    />
             </div>
           </CardHeader>
           <CardContent className="p-0 max-h-125 overflow-y-auto">
@@ -161,15 +194,18 @@ export const ProductsPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
+                {filteredProducts.map((product) => {
+                    const isLow = product.stock <= 5;
+                    const isMedium = product.stock > 5 && product.stock < 20;
+                    return(
                   <TableRow key={product._id}>
                     <TableCell className="text-sm font-medium">- {product.name}</TableCell>
                     <TableCell><Badge  className="text-xs">{product.category}</Badge></TableCell>
                     <TableCell className="text-sm text-right">{currencyFormater(product.price)}</TableCell>
                     <TableCell className="text-right">
-                      <Badge className={cn(product.stock <= 5 ? "bg-red-400" : "bg-white")}>
-                        <p className="text-black">{product.stock}</p>
-                      </Badge>
+                        <Badge variant={isLow ? "destructive" : isMedium ? "warning" : "default"} className="text-xs">
+                          <p className="text-white">{product.stock}</p>
+                        </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
@@ -182,7 +218,7 @@ export const ProductsPage = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                )})}
               </TableBody>
             </Table>
           </CardContent>
