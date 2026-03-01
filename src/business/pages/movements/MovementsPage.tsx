@@ -2,9 +2,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Table } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { useMovements } from "@/business/hooks/useMovements"
+import { CustomFullScreenLoading } from "@/components/custom/CustomFullScreenLoading"
+
 
 
 export const MovementsPage = () => {
+
+  const {data, isLoading, isError} = useMovements()
+
+
+  const movements = data ?? []
+  if(isLoading) return <CustomFullScreenLoading/>
+  if(isError) return <p className="text-xl text-red-500 font-bold">Error cargando productos</p>
+
   return (
     <div className="space-y-6">
         <div>
@@ -22,25 +33,27 @@ export const MovementsPage = () => {
                 <TableRow>
                   <TableHead className="text-xs">Producto</TableHead>
                   <TableHead className="text-xs">Tipo</TableHead>
-                  <TableHead className="text-xs text-right">Cantidad</TableHead>
-                  <TableHead className="text-xs">Usuario</TableHead>
+                  <TableHead className="text-xs text-right">Stock Actual</TableHead>
+                  <TableHead className="text-xs text-right">Stock Previo</TableHead>
+                  <TableHead className="text-xs text-right">Stock Ingresado</TableHead>
                   <TableHead className="text-xs text-right">Fecha</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* {movements.map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell className="text-sm font-medium">{m.productName}</TableCell>
+                {movements.map((move) => (
+                  <TableRow key={move._id}>
+                    <TableCell className="text-sm font-medium">{move.product?.name ?? "Producto eliminado"}</TableCell>
                     <TableCell>
-                      <Badge variant={m.type === "entrada" ? "default" : "secondary"} className="text-xs capitalize">
-                        {m.type}
+                      <Badge variant={move.type === "IN" ? "default" : "secondary"} className="text-xs capitalize">
+                        {move.type}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-right">{m.quantity}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{m.user}</TableCell>
-                    <TableCell className="text-sm text-right text-muted-foreground">{m.date}</TableCell>
+                    <TableCell className="text-sm text-right">{move.newStock}</TableCell>
+                    <TableCell className="text-sm text-right">{move.previousStock}</TableCell>
+                    <TableCell className="text-sm text-right">{move.quantity}</TableCell>
+                    <TableCell className="text-sm text-right text-muted-foreground">{new Date(move.createdAt).toLocaleDateString()}</TableCell>
                   </TableRow>
-                ))} */}
+                ))}
               </TableBody>
             </Table>
           </CardContent>

@@ -38,7 +38,7 @@ export const LoginPage = () => {
 
     const isValid = await login(email,password);
     if(isValid){
-      navigate('/')
+      navigate('/dashboard')
       return
     }
     toast.error('Correo y/o contraseña incorrecto')
