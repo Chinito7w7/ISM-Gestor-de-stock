@@ -42,7 +42,7 @@ export const MovementsPage = () => {
               <TableBody>
                 {movements.map((move) => (
                   <TableRow key={move._id}>
-                    <TableCell className="text-sm font-medium">{move.product?.name ?? "Producto eliminado"}</TableCell>
+                    <TableCell className="text-sm font-medium">{move.product?.name ?? move.productSnapshot?.name }</TableCell>
                     <TableCell>
                       <Badge variant={move.type === "IN" ? "default" : "secondary"} className="text-xs capitalize">
                         {move.type}
