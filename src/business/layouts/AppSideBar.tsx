@@ -17,7 +17,6 @@ const navItems = [
   { label: "Productos", icon: Package, path: "/dashboard/productos" },
   { label: "Inventario", icon: Warehouse, path: "/dashboard/inventario" },
   { label: "Movimientos", icon: ArrowLeftRight, path: "/dashboard/movimientos" },
-  { label: "Proveedores", icon: Truck, path: "/dashboard/proveedores" },
   { label: "Configuración", icon: Settings, path: "/dashboard/configuracion" },
 ];
 

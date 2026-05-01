@@ -4,12 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-
+import { useDashboard } from "@/business/hooks/useDashboard";
+import { CustomFullScreenLoading } from "@/components/custom/CustomFullScreenLoading";
 
 
 
 
 export const DashboardPage = () => {
+
+  const {data, isError,isLoading} = useDashboard()
+
+  const statistics = data
+
+  if(isLoading) return <CustomFullScreenLoading/>
+  if(isError) return <p className="text-xl text-red-500 font-bold">Error cargando productos</p>
   return (
       <div className="space-y-6">
         {/* Header */}
@@ -81,16 +89,16 @@ export const DashboardPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {/* {lowStockProducts.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="text-sm font-medium">{p.name}</TableCell>
+                  {statistics?.lowStockProducts.map((product) => (
+                    <TableRow key={product._id}>
+                      <TableCell className="text-sm font-medium">{product.name}</TableCell>
                       <TableCell className="text-right">
                         <Badge variant="destructive" className="text-xs">
-                          {p.stock}
+                          {product.stock}
                         </Badge>
                       </TableCell>
                     </TableRow>
-                  ))} */}
+                  ))}
                 </TableBody>
               </Table>
             </CardContent>
@@ -113,18 +121,18 @@ export const DashboardPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* {movements.slice(0, 5).map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell className="text-sm font-medium">{m.productName}</TableCell>
+                {statistics?.latestMovements.map((movement) => (
+                  <TableRow key={movement._id}>
+                    <TableCell className="text-sm font-medium">{movement.productName}</TableCell>
                     <TableCell>
-                      <Badge variant={m.type === "entrada" ? "default" : "secondary"} className="text-xs capitalize">
-                        {m.type}
+                      <Badge variant={movement.type === "entrada" ? "default" : "secondary"} className="text-xs capitalize">
+                        {movement.type}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-right">{m.quantity}</TableCell>
-                    <TableCell className="text-sm text-right text-muted-foreground">{m.date}</TableCell>
+                    <TableCell className="text-sm text-right">{movement.quantity}</TableCell>
+                    <TableCell className="text-sm text-right text-muted-foreground">{new Date(movement.createdAt).toLocaleDateString()}</TableCell>
                   </TableRow>
-                ))} */}
+                ))}
               </TableBody>
             </Table>
           </CardContent>

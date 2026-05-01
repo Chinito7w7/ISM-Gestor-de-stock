@@ -3,6 +3,7 @@ import { create } from "zustand"
 import { loginAction } from "../actions/login.action";
 import { checkAuthAction } from "../actions/check-auth.action";
 import { registerAction } from "../actions/register.action";
+import { queryClient } from "@/api/queryClient" // 👈 mismo archivo
 
 type AuthStatus = 'authenticated' | 'not-authenticated' | 'checking';
 
@@ -45,7 +46,8 @@ export const useAuthStore = create<AuhtStore>()((set) => ({
     },
     logout: () => {
         localStorage.removeItem('token')
-        set({user:null, token:null, authStatus:'not-authenticated'})
+        queryClient.clear()
+        set({ user: null, token: null, authStatus: 'not-authenticated' })
     },
 
     checkAuthStatus: async () => {

@@ -66,10 +66,6 @@ export const appRouter = createBrowserRouter([
                 path: "movimientos",
                  element: <MovementsPage />
              },
-            { 
-                path: "proveedores",
-                 element: <ProvidersPage />
-             },
              {
                 path: "configuracion",
                  element:<ConfigurationPage/>

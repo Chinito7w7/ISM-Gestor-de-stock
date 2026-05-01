@@ -22,11 +22,13 @@ export const CategoryFilter = ({ categories, value, onChange }: Props) => {
       <SelectContent>
         <SelectItem value="all">Todas</SelectItem>
 
-        {categories.map((category) => (
-          <SelectItem key={category} value={category}>
-            {category}
-          </SelectItem>
-        ))}
+        {categories
+          .filter(Boolean) // ignore empty entries just in case
+          .map((category) => (
+            <SelectItem key={category} value={category}>
+              {category}
+            </SelectItem>
+          ))}
       </SelectContent>
     </Select>
   );

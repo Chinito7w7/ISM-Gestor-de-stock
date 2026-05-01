@@ -1,39 +1,38 @@
 import { RouterProvider } from "react-router"
 import { appRouter } from "./app.router"
 import { Toaster } from "sonner"
-import {QueryClient, QueryClientProvider, useQuery} from "@tanstack/react-query"
-import { ReactQueryDevtools} from "@tanstack/react-query-devtools"
+import { QueryClientProvider, useQuery } from "@tanstack/react-query"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { PropsWithChildren } from "react"
 import { CustomFullScreenLoading } from "./components/custom/CustomFullScreenLoading"
 import { useAuthStore } from "./auth/store/auth.store"
+import { queryClient } from "./api/queryClient" // 👈 importás el que creaste
 
-const queryClient = new QueryClient()
+// 👇 ya no se crea acá
+// const queryClient = new QueryClient()
 
-const CheckAuthProvider = ({children}: PropsWithChildren) => {
-    const {checkAuthStatus} = useAuthStore()
+const CheckAuthProvider = ({ children }: PropsWithChildren) => {
+  const { checkAuthStatus } = useAuthStore()
 
-    const {isLoading} = useQuery({
-    queryKey:['auth'],
+  const { isLoading } = useQuery({
+    queryKey: ['auth'],
     queryFn: checkAuthStatus,
-    retry:false,
+    retry: false,
     refetchInterval: 1000 * 60 * 1.5
   })
 
-  if(isLoading) return <CustomFullScreenLoading/>
+  if (isLoading) return <CustomFullScreenLoading />
   return children
 }
 
-
-
 export const IsmApp = () => {
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster/>
+      <Toaster />
       <CheckAuthProvider>
-        <RouterProvider router={appRouter}/>
+        <RouterProvider router={appRouter} />
       </CheckAuthProvider>
-      <ReactQueryDevtools initialIsOpen={false}/>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
 }

@@ -67,7 +67,13 @@ export const ProductsPage = () => {
 
 
     const products = data ?? [];
-    const categories = [...new Set(products.map(product => product.category).sort())];
+    // ensure we don't include empty strings which would cause Radix Select errors
+    const categories = [...new Set(
+      products
+        .map(product => product.category)
+        .filter(Boolean) // remove empty or falsy values
+        .sort()
+    )];
     const selectedCategory = watch("category");
 
     const filteredProducts = products

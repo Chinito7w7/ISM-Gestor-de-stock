@@ -20,7 +20,13 @@ export const InventoryPage = () => {
     const [sort, setSort] = useState<SortOption>("price-desc");
 
     const products = data ?? [];
-    const categories = [...new Set(products.map(product => product.category).sort())];
+    // filter out empty categories to avoid creating <Select.Item value="" />
+    const categories = [...new Set(
+      products
+        .map(product => product.category)
+        .filter(Boolean)
+        .sort()
+    )];
     const filteredProducts = products
     .filter((product) => {
         const matchesSearch = product.name
